@@ -4,15 +4,11 @@ const { Builder, By } = require('selenium-webdriver');
 const { Eyes, 
     VisualGridRunner, 
     RunnerOptions,
-    Target, 
-    RectangleSize, 
+    Target,
     Configuration, 
-    BatchInfo,
-    BrowserType,
-    ScreenOrientation,
-    DeviceName } = require('@applitools/eyes-selenium');
+    BatchInfo, } = require('@applitools/eyes-selenium');
 
-describe('ACME Bank', () => {
+describe('Functional with Visual', () => {
     // This Mocha test case class contains everything needed to run a full visual test against the ACME bank site.
     // It runs the test once locally,
     // and then it performs cross-browser testing against multiple unique browsers in Applitools Ultrafast Grid.
@@ -54,7 +50,7 @@ describe('ACME Bank', () => {
         // Create a new batch for tests.
         // A batch is the collection of visual checkpoints for a test suite.
         // Batches are displayed in the Eyes Test Manager, so use meaningful names.
-        batch = new BatchInfo('Example: Selenium JavaScript Mocha with the Ultrafast Grid');
+        batch = new BatchInfo('Functional Xample');
 
         // Create a configuration for Applitools Eyes.
         config = new Configuration();
@@ -66,17 +62,8 @@ describe('ACME Bank', () => {
 
         // Set the batch for the config.
         config.setBatch(batch);
-
-        // Add 3 desktop browsers with different viewports for cross-browser testing in the Ultrafast Grid.
-        // Other browsers are also available, like Edge and IE.
-        config.addBrowser(800, 600, BrowserType.CHROME);
-        config.addBrowser(1600, 1200, BrowserType.FIREFOX);
-        config.addBrowser(1024, 768, BrowserType.SAFARI);
-    
-        // Add 2 mobile emulation devices with different orientations for cross-browser testing in the Ultrafast Grid.
-        // Other mobile devices are available, including iOS.
-        config.addDeviceEmulation(DeviceName.Pixel_2, ScreenOrientation.PORTRAIT);
-        config.addDeviceEmulation(DeviceName.Nexus_10, ScreenOrientation.LANDSCAPE);
+        
+        
     });
     
     beforeEach(async function() {
@@ -85,20 +72,21 @@ describe('ACME Bank', () => {
         // Open the browser with the ChromeDriver instance.
         // Even though this test will run visual checkpoints on different browsers in the Ultrafast Grid,
         // it still needs to run the test one time locally to capture snapshots.
-        driver = new Builder()
-        .withCapabilities({
+
+        let executionCloudUrl = await Eyes.getExecutionCloudUrl()
+        driver = await new Builder()
+            .withCapabilities({
             browserName: 'chrome',
-            'goog:chromeOptions': {
-                args: headless,
-            },
-        })
-        .build()
+            })
+            .usingServer(executionCloudUrl)
+            .build()
+            console.log(executionCloudUrl)
 
         // Set an implicit wait of 10 seconds.
         // For larger projects, use explicit waits for better control.
         // https://www.selenium.dev/documentation/webdriver/waits/
         // The following call works for Selenium 4:
-        await driver.manage().setTimeouts( { implicit: 10000 } );
+        // await driver.manage().setTimeouts( { implicit: 10000 } );
 
         // If you are using Selenium 3, use the following call instead:
         // await driver.manage().timeouts().implicitlyWait(10000);
@@ -117,7 +105,7 @@ describe('ACME Bank', () => {
             // The name of the application under test.
             // All tests for the same app should share the same app name.
             // Set this name wisely: Applitools features rely on a shared app name across tests.
-            'ACME Bank',
+            'Selenium Test',
             
             // The name of the test case for the given application.
             // Additional unique characteristics of the test may also be specified as part of the test name,
@@ -127,31 +115,47 @@ describe('ACME Bank', () => {
             // The viewport size for the local browser.
             // Eyes will resize the web browser to match the requested viewport size.
             // This parameter is optional but encouraged in order to produce consistent results.
-            new RectangleSize(1024, 768)
+            
         );
     })
 
-    it('should log into a bank account', async () => {
-        // This test covers login for the Applitools demo site, which is a dummy banking app.
-        // The interactions use typical Selenium calls,
-        // but the verifications use one-line snapshot calls with Applitools Eyes.
-        // If the page ever changes, then Applitools will detect the changes and highlight them in the Eyes Test Manager.
-        // Traditional assertions that scrape the page for text values are not needed here.
+    it('Functional & Visual Test', async () => {
 
-        // Load the login page.
-        await driver.get("https://demo.applitools.com");
+        // Go To Product Page
+        await driver.get("https://applitools-demo-ecommerce.vercel.app/products/music/awesome-bronze-pants/");
+        console.log("Visit Website")
 
-        // Verify the full login page loaded correctly.
-        await eyes.check(Target.window().fully().withName("Login page"));
+        // Validate Product Page
+        await eyes.check(Target.window().fully().withName("Product Page").layout());
+        
+        // Click Buy Now Button.
+        await driver.findElement(By.id("buyButton")).click();
+        console.log("Click Buy Now")
 
-        // Perform login.
-        await driver.findElement(By.css("#username")).sendKeys("andy");
-        await driver.findElement(By.css("#password")).sendKeys("i<3pandas");
-        await driver.findElement(By.id("log-in")).click();
+        // Click But Now Button Again
+        await driver.findElement(By.id("buyButton")).click();
+        console.log("Click Buy Now Again")
 
-        // Verify the full main page loaded correctly.
-        // This snapshot uses LAYOUT match level to avoid differences in closing time text.
-        await eyes.check(Target.window().fully().withName("Main page").layout());
+        // Wait 5 Seconds.
+        await driver.sleep(5000);
+        
+         // Click Cart Button
+        await driver.findElement(By.id("cartButton")).click();
+        console.log("Click Cart Button")
+
+        // Verify the cart page loaded correctly. Find the h1 element and assert its text
+        driver.findElement(By.className('cart-module--emptyStateHeading--u5LZO')).getText().then(function(text) {
+        if (text === 'Your cart is empty') {
+            console.log('Success! The h1 text is correct.');
+        } else {
+            console.log('Error! The h1 text is incorrect: ' + text);
+        }
+        });
+        
+        // Validate Checkout Page.
+        await eyes.check(Target.window().fully().withName("Cart Page").layout());
+        console.log("Verify Cart Page")
+         
     });
     
     afterEach(async function() {
@@ -161,11 +165,9 @@ describe('ACME Bank', () => {
 
         // Quit the WebDriver instance.
         await driver.quit();
-
         // Warning: `eyes.closeAsync()` will NOT wait for visual checkpoints to complete.
         // You will need to check the Eyes Test Manager for visual results per checkpoint.
         // Note that "unresolved" and "failed" visual checkpoints will not cause the Mocha test to fail.
-
         // If you want the ACME demo app test to wait synchronously for all checkpoints to complete, then use `eyes.close()`.
         // If any checkpoints are unresolved or failed, then `eyes.close()` will make the ACME demo app test fail.
     
