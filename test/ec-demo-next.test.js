@@ -130,15 +130,9 @@ describe('Grouped Layout Test', () => {
         await driver.findElement(By.id("groupedLayouts")).click();
         console.log("Click Link")
         
-        // Verify the cart page loaded correctly. Find the h1 element and assert its text
-        driver.findElement(By.className('text-xl')).getText().then(function(text) {
-            if (text === 'Route Groups') {
-                console.log('Route Groups');
-            } else {
-                console.log('Error! The h1 text is incorrect: ' + text);
-            }
-            });
-      
+        // Validate Checkout Page.
+        await eyes.check(Target.window().fully().withName("Grouped Layouts Page").layout());
+        console.log("Verify Grouped Layouts Page")
          
     });
     
