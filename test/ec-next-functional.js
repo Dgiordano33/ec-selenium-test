@@ -8,13 +8,13 @@ const { Eyes,
     Configuration, 
     BatchInfo, } = require('@applitools/eyes-selenium');
 
-describe('Functional Example', () => {
+describe('Grouped Layout Test', () => {
     // This Mocha test case class contains everything needed to run a full visual test against the ACME bank site.
     // It runs the test once locally,
     // and then it performs cross-browser testing against multiple unique browsers in Applitools Ultrafast Grid.
 
     // Test control inputs to read once and share for all tests
-    var applitoolsApiKey;
+    var apiKey;
     var headless;
 
     // Applitools objects to share for all tests
@@ -25,6 +25,7 @@ describe('Functional Example', () => {
     // Test-specific objects
     let driver;
     let eyes;
+    let serverUrl;
 
     before(async () => {
         // This method sets up the configuration for running visual tests in the Ultrafast Grid.
@@ -35,7 +36,7 @@ describe('Functional Example', () => {
         // Read the Applitools API key from an environment variable.
         // To find your Applitools API key:
         // https://applitools.com/tutorials/getting-started/setting-up-your-environment.html
-        applitoolsApiKey = process.env.APPLITOOLS_API_KEY;
+        apiKey = 'WoPMVgSCKcEAl7aHpFSdkgY6N16109h2Y5vXJKbE8ReSg110'
 
         // Read the headless mode setting from an environment variable.
         // Use headless mode for Continuous Integration (CI) execution.
@@ -50,7 +51,7 @@ describe('Functional Example', () => {
         // Create a new batch for tests.
         // A batch is the collection of visual checkpoints for a test suite.
         // Batches are displayed in the Eyes Test Manager, so use meaningful names.
-        batch = new BatchInfo('Short Functional Example');
+        batch = new BatchInfo('Next Playground Functional');
 
         // Create a configuration for Applitools Eyes.
         config = new Configuration();
@@ -58,10 +59,12 @@ describe('Functional Example', () => {
         // Set the Applitools API key so test results are uploaded to your account.
         // If you don't explicitly set the API key with this call,
         // then the SDK will automatically read the `APPLITOOLS_API_KEY` environment variable to fetch it.
-        config.setApiKey(applitoolsApiKey);
+        config.setApiKey(apiKey);
 
         // Set the batch for the config.
         config.setBatch(batch);
+
+        serverUrl = 'https://eyes.applitools.com/';
         
         
     });
@@ -77,6 +80,10 @@ describe('Functional Example', () => {
         driver = await new Builder()
             .withCapabilities({
             browserName: 'chrome',
+            "applitools:options": {
+                apiKey,
+                useSelfHealing: true,
+              },
             })
             .usingServer(executionCloudUrl)
             .build()
@@ -105,7 +112,7 @@ describe('Functional Example', () => {
             // The name of the application under test.
             // All tests for the same app should share the same app name.
             // Set this name wisely: Applitools features rely on a shared app name across tests.
-            'Selenium Test',
+            'Next Playground',
             
             // The name of the test case for the given application.
             // Additional unique characteristics of the test may also be specified as part of the test name,
@@ -119,20 +126,20 @@ describe('Functional Example', () => {
         );
     })
 
-    it('Short Functional Example', async () => {
+    it('Grouped Layout Test Functional', async () => {
 
         // Go To Product Page
-        await driver.get("https://applitools-demo-ecommerce.vercel.app/products/music/awesome-bronze-pants/");
+        await driver.get("https://app-directory-iota-dun.vercel.app/");
         console.log("Visit Website")
-
-         // Click Cart Button
-        await driver.findElement(By.id("cartButton")).click();
-        console.log("Click Cart Button")
-
-        // Verify the cart page loaded correctly. Find the h1 element and assert its text
-        driver.findElement(By.className('cart-module--emptyStateHeading--u5LZO')).getText().then(function(text) {
-        if (text === 'Your cart is empty') {
-            console.log('Success! The h1 text is correct.');
+      
+        // Click Buy Now Button.
+        await driver.findElement(By.id("groupedLayouts")).click();
+        console.log("Click Link")
+        
+       // Verify the cart page loaded correctly. Find the h1 element and assert its text
+        driver.findElement(By.className('text-xl')).getText().then(function(text) {
+        if (text === 'Route Groups') {
+            console.log('Route Groups');
         } else {
             console.log('Error! The h1 text is incorrect: ' + text);
         }
@@ -163,3 +170,5 @@ describe('Functional Example', () => {
         console.log(allTestResults);
     });
 })
+
+

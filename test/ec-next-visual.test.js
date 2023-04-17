@@ -8,7 +8,7 @@ const { Eyes,
     Configuration, 
     BatchInfo, } = require('@applitools/eyes-selenium');
 
-describe('Visual AI Example', () => {
+describe('Grouped Layout Test', () => {
     // This Mocha test case class contains everything needed to run a full visual test against the ACME bank site.
     // It runs the test once locally,
     // and then it performs cross-browser testing against multiple unique browsers in Applitools Ultrafast Grid.
@@ -50,7 +50,7 @@ describe('Visual AI Example', () => {
         // Create a new batch for tests.
         // A batch is the collection of visual checkpoints for a test suite.
         // Batches are displayed in the Eyes Test Manager, so use meaningful names.
-        batch = new BatchInfo('Visual Xample');
+        batch = new BatchInfo('Next App Demo');
 
         // Create a configuration for Applitools Eyes.
         config = new Configuration();
@@ -75,8 +75,13 @@ describe('Visual AI Example', () => {
 
         let executionCloudUrl = await Eyes.getExecutionCloudUrl()
         driver = await new Builder()
-            .withCapabilities({
+        .withCapabilities({
             browserName: 'chrome',
+            "applitools:options": {
+                eyesServerUrl: serverUrl,
+                applitoolsApiKey,
+                useSelfHealing: true,
+              },
             })
             .usingServer(executionCloudUrl)
             .build()
@@ -105,7 +110,7 @@ describe('Visual AI Example', () => {
             // The name of the application under test.
             // All tests for the same app should share the same app name.
             // Set this name wisely: Applitools features rely on a shared app name across tests.
-            'Selenium Test',
+            'Next Playground',
             
             // The name of the test case for the given application.
             // Additional unique characteristics of the test may also be specified as part of the test name,
@@ -119,23 +124,23 @@ describe('Visual AI Example', () => {
         );
     })
 
-    it('Visual AI Test', async () => {
+    it('Grouped Layout Test Quick', async () => {
 
         // Go To Product Page
-        await driver.get("https://applitools-demo-ecommerce.vercel.app/products/music/awesome-bronze-pants/");
+        await driver.get("https://app-directory-iota-dun.vercel.app/");
         console.log("Visit Website")
 
-        // Validate Product Page
-        await eyes.check(Target.window().fully().withName("Product Page").layout());
-        console.log("Validate Product Page")
-
-         // Click Cart Button
-        await driver.findElement(By.id("cartButton")).click();
-        console.log("Click Cart Button")
+        // Validate Product Page.
+        await eyes.check(Target.window().fully().withName("Docs Home Page").layout());
+        console.log("Docs Home Page")
+     
+        // Click Buy Now Button.
+        await driver.findElement(By.id("groupedLayouts")).click();
+        console.log("Click Link")
         
         // Validate Checkout Page.
-        await eyes.check(Target.window().fully().withName("Cart Page").layout());
-        console.log("Validate Cart Page")
+        await eyes.check(Target.window().fully().withName("Grouped Layouts Page").layout());
+        console.log("Verify Grouped Layouts Page")
          
     });
     
@@ -162,3 +167,5 @@ describe('Visual AI Example', () => {
         console.log(allTestResults);
     });
 })
+
+

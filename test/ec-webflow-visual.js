@@ -8,7 +8,7 @@ const { Eyes,
     Configuration, 
     BatchInfo, } = require('@applitools/eyes-selenium');
 
-describe('Functional with Visual', () => {
+describe('Grouped Layout Test', () => {
     // This Mocha test case class contains everything needed to run a full visual test against the ACME bank site.
     // It runs the test once locally,
     // and then it performs cross-browser testing against multiple unique browsers in Applitools Ultrafast Grid.
@@ -25,6 +25,7 @@ describe('Functional with Visual', () => {
     // Test-specific objects
     let driver;
     let eyes;
+    let serverUrl;
 
     before(async () => {
         // This method sets up the configuration for running visual tests in the Ultrafast Grid.
@@ -50,7 +51,7 @@ describe('Functional with Visual', () => {
         // Create a new batch for tests.
         // A batch is the collection of visual checkpoints for a test suite.
         // Batches are displayed in the Eyes Test Manager, so use meaningful names.
-        batch = new BatchInfo('Functional Xample');
+        batch = new BatchInfo('Tredway');
 
         // Create a configuration for Applitools Eyes.
         config = new Configuration();
@@ -63,6 +64,7 @@ describe('Functional with Visual', () => {
         // Set the batch for the config.
         config.setBatch(batch);
         
+        serverUrl = 'https://eyes.applitools.com';
         
     });
     
@@ -75,8 +77,13 @@ describe('Functional with Visual', () => {
 
         let executionCloudUrl = await Eyes.getExecutionCloudUrl()
         driver = await new Builder()
-            .withCapabilities({
+        .withCapabilities({
             browserName: 'chrome',
+            "applitools:options": {
+                eyesServerUrl: serverUrl,
+                applitoolsApiKey,
+                useSelfHealing: true,
+              },
             })
             .usingServer(executionCloudUrl)
             .build()
@@ -105,7 +112,7 @@ describe('Functional with Visual', () => {
             // The name of the application under test.
             // All tests for the same app should share the same app name.
             // Set this name wisely: Applitools features rely on a shared app name across tests.
-            'Selenium Test',
+            'Next Playground',
             
             // The name of the test case for the given application.
             // Additional unique characteristics of the test may also be specified as part of the test name,
@@ -119,42 +126,23 @@ describe('Functional with Visual', () => {
         );
     })
 
-    it('Functional & Visual Test', async () => {
+    it('Website Test', async () => {
 
-        // Go To Product Page
-        await driver.get("https://applitools-demo-ecommerce.vercel.app/products/music/awesome-bronze-pants/");
+        // Go To Home Page
+        await driver.get("https://www.tredway.com/");
         console.log("Visit Website")
 
-        // Validate Product Page
-        await eyes.check(Target.window().fully().withName("Product Page").layout());
+        // Validate Home Page
+        await eyes.check(Target.window().fully().withName("Homepage").strict());
+        console.log("Verify HomePage")
+     
+        // Click ICP Link
+        await driver.findElement(By.id("correctID")).click();
+        console.log("Click Link")
         
-        // Click Buy Now Button.
-        await driver.findElement(By.id("buyButton")).click();
-        console.log("Click Buy Now")
-
-        // Click But Now Button Again
-        await driver.findElement(By.id("buyButton")).click();
-        console.log("Click Buy Now Again")
-
-        // Wait 5 Seconds.
-        await driver.sleep(5000);
-        
-         // Click Cart Button
-        await driver.findElement(By.id("cartButton")).click();
-        console.log("Click Cart Button")
-
-        // Verify the cart page loaded correctly. Find the h1 element and assert its text
-        driver.findElement(By.className('cart-module--emptyStateHeading--u5LZO')).getText().then(function(text) {
-        if (text === 'Your cart is empty') {
-            console.log('Success! The h1 text is correct.');
-        } else {
-            console.log('Error! The h1 text is incorrect: ' + text);
-        }
-        });
-        
-        // Validate Checkout Page.
-        await eyes.check(Target.window().fully().withName("Cart Page").layout());
-        console.log("Verify Cart Page")
+        // Validate ICP Page
+        await eyes.check(Target.window().fully().withName("ICP").strict());
+        console.log("Verify ICP Page")
          
     });
     
@@ -181,3 +169,5 @@ describe('Functional with Visual', () => {
         console.log(allTestResults);
     });
 })
+
+
